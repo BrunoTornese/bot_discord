@@ -17,7 +17,7 @@ intents = discord.Intents.all()
 intents.members = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 lista_canciones = []
-cola_reproduccion = asyncio.Queue() 
+cola_reproduccion = asyncio.Queue() #  
 
 
 #funcion para sumar
@@ -148,8 +148,24 @@ async def resume(ctx): # función para reanudar el bot
         if player.is_paused(): # si el objeto de audio está pausado
             player.resume() # reanuda el objeto de audio
 
+@bot.command()
+async def skip(ctx, amount: int = 1):
+    if not ctx.voice_client: # si no esta conectado a un canal de voz
+        return await ctx.send("No estoy conectado a un canal de voz.") # envia el mensaje de error
+
+    if not cola_reproduccion: # si no hay canciones en la cola de reproducción
+        return await ctx.send("No hay canciones en la cola de reproducción.") # envia un mensaje de error
+    
+    else: # si hay canciones en la cola de reproducción
+        ctx.voice_client.stop() # parar el bot
+        for i in range(amount - 1): # para cada canción en la cola de reproducción
+            cola_reproduccion.get_nowait() # obtiene el siguiente elemento de la cola de reproducción y si no hay da una exepcion
+
+        await ctx.send(f"Saltando la cancion.")
+
+
+        
 
 bot.run(TOKEN)
-
 
 
